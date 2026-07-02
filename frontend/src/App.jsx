@@ -661,6 +661,12 @@ function App() {
                 >
                   <div className="live-event-header">
                     <span className={`live-badge ${evt.alert_level}`}>{evt.alert_level.toUpperCase()}</span>
+                    {evt.verification_status === 'farmer_reported' && (
+                      <span className="verification-badge farmer-reported" title="Farmer-reported, pending verification">FARMER REPORTED</span>
+                    )}
+                    {evt.source === 'pur_official' && (
+                      <span className="verification-badge verified" title="Verified against official PUR records">VERIFIED</span>
+                    )}
                     <span className="live-time">{new Date(evt.timestamp).toLocaleTimeString()}</span>
                   </div>
                   <div className="live-site">{evt.site_name}</div>
@@ -963,7 +969,15 @@ function App() {
                 </div>
                 <div className="method-item">
                   <span className="method-label">Limitations</span>
-                  <span className="method-value">PUR data has 12-18 month reporting lag. Real-time events shown are simulated for demonstration purposes.</span>
+                  <span className="method-value">PUR data has 12-18 month reporting lag. GeoSync does not replace official state reporting systems.</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Farmer Portal</span>
+                  <span className="method-value">Optional farmer-submitted reports are labeled as "farmer-reported" until verified against official records. Not intended to replace CalAgPermits or county reporting requirements.</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Data Integration</span>
+                  <span className="method-value">GeoSync combines official PUR datasets with optional farmer-reported updates to provide faster, more localized monitoring while preserving data credibility through verification labeling.</span>
                 </div>
               </div>
               <div className="methodology-citation">

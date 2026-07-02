@@ -36,6 +36,17 @@ class FarmSize(str, Enum):
     large = "large"      # 500-2000 acres
     enterprise = "enterprise"  # > 2000 acres
 
+class VerificationStatus(str, Enum):
+    """
+    Verification status for farmer-submitted reports.
+    GeoSync does not replace official state reporting (CalAgPermits/DPR),
+    but integrates farmer-reported updates with official records.
+    """
+    pending = "pending"          # Submitted, awaiting verification
+    verified = "verified"        # Matched with official PUR record
+    farmer_reported = "farmer_reported"  # Not yet in official records
+    rejected = "rejected"        # Invalid or incorrect data
+
 class FarmerRegister(BaseModel):
     email: EmailStr
     password: str
@@ -164,6 +175,8 @@ def init_farmer_tables():
     """)
 
     # Spray reports table
+    # Note: Farmer-submitted reports are separate from official PUR data.
+    # verification_status tracks whether this report has been matched with official records.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS spray_reports (
             id SERIAL PRIMARY KEY,
@@ -181,13 +194,15 @@ def init_farmer_tables():
             scheduled_time TIMESTAMP NOT NULL,
             reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             status VARCHAR(50) DEFAULT 'scheduled',
+            verification_status VARCHAR(50) DEFAULT 'farmer_reported',
             notes TEXT,
             wind_speed_mph DECIMAL(5, 2),
             wind_direction VARCHAR(10),
             temperature_f DECIMAL(5, 2),
             nearby_schools INTEGER DEFAULT 0,
             nearby_healthcare INTEGER DEFAULT 0,
-            drift_risk VARCHAR(50)
+            drift_risk VARCHAR(50),
+            data_source VARCHAR(50) DEFAULT 'farmer_portal'
         )
     """)
 
@@ -376,11 +391,15 @@ async def submit_spray_report(
     conn.close()
 
     # Broadcast to dashboard via WebSocket
+    # Note: All farmer-submitted data is labeled as "farmer_reported" until verified
+    # against official PUR records. This maintains data credibility.
     event = {
         "id": report_id,
         "timestamp": datetime.now().isoformat(),
         "type": "farmer_report",
         "source": "farmer_portal",
+        "data_source": "farmer_reported",  # Clearly labeled - not official PUR data
+        "verification_status": "farmer_reported",  # Pending verification against official records
 
         "site_name": farmer["farm_name"] if farmer else "Unknown Farm",
         "lat": report.lat,

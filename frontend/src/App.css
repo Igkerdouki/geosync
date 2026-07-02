@@ -2436,6 +2436,34 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Verification Badges */
+.verification-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.verification-badge.farmer-reported {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--purple);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.verification-badge.verified {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--green);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.verification-badge.pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--orange);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
 .summary-card.simulated {
   border-color: rgba(245, 158, 11, 0.3);
 }
