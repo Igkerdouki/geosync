@@ -927,6 +927,50 @@ function App() {
               </div>
             </div>
           </div>
+
+          {/* Data Sources & Methodology */}
+          <div className="research-card full-width methodology">
+            <h3><Info size={18} /> Data Sources & Methodology</h3>
+            <div className="methodology-content">
+              <div className="methodology-grid">
+                <div className="method-item">
+                  <span className="method-label">Data Source</span>
+                  <span className="method-value">California Department of Pesticide Regulation (CA DPR) Pesticide Use Reports (PUR)</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Years Covered</span>
+                  <span className="method-value">2014 - 2023 (10 years)</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Unit of Measurement</span>
+                  <span className="method-value">Pounds (lbs) of active ingredient applied</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Geographic Scope</span>
+                  <span className="method-value">All 58 California counties</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Reporting Basis</span>
+                  <span className="method-value">Mandatory reporting by licensed applicators (California Food & Agricultural Code §12979)</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Risk Classification</span>
+                  <span className="method-value">Based on total lbs applied per county. High = &gt;30M lbs, Medium = 15-30M lbs, Low = &lt;15M lbs. Does not currently weight by toxicity.</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Drift Estimation</span>
+                  <span className="method-value">Gaussian Plume Model with Pasquill-Gifford atmospheric stability classification</span>
+                </div>
+                <div className="method-item">
+                  <span className="method-label">Limitations</span>
+                  <span className="method-value">PUR data has 12-18 month reporting lag. Real-time events shown are simulated for demonstration purposes.</span>
+                </div>
+              </div>
+              <div className="methodology-citation">
+                <p><strong>Citation:</strong> California Department of Pesticide Regulation. Pesticide Use Reporting (PUR) Database. Available at: <a href="https://www.cdpr.ca.gov/docs/pur/purmain.htm" target="_blank" rel="noopener noreferrer">cdpr.ca.gov/docs/pur/purmain.htm</a></p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1174,8 +1218,11 @@ function App() {
       <header className="header">
         <div className="logo">
           <div className="logo-icon"><Zap size={20} /></div>
-          <span className="logo-text">GeoSync</span>
-          <span className="logo-badge">BETA</span>
+          <div className="logo-content">
+            <span className="logo-text">GeoSync</span>
+            <span className="logo-badge">BETA</span>
+            <span className="logo-tagline">Pesticide exposure mapping for environmental health research</span>
+          </div>
         </div>
 
         <nav className="nav">
@@ -1207,44 +1254,54 @@ function App() {
 
       {/* Summary Cards */}
       <div className="summary-bar">
-        <motion.div className="summary-card" whileHover={{ y: -2 }}>
+        <motion.div className="summary-card has-tooltip" whileHover={{ y: -2 }}>
           <div className="summary-icon orange"><Droplets size={20} /></div>
           <div className="summary-content">
-            <span className="summary-value">{stats ? formatNumber(stats.total_lbs_applied) : '—'}</span>
-            <span className="summary-label">Total Pesticide Use</span>
+            <span className="summary-value">{stats ? formatNumber(stats.total_lbs_applied) : '—'} <span className="summary-unit">lbs</span></span>
+            <span className="summary-label">Total Pesticide Applied</span>
           </div>
+          <button className="info-toggle" title="Click for details"><Info size={10} /></button>
+          <div className="card-tooltip">Pounds of active ingredient applied, as reported to CA DPR ({selectedYear})</div>
         </motion.div>
 
-        <motion.div className="summary-card" whileHover={{ y: -2 }}>
+        <motion.div className="summary-card has-tooltip" whileHover={{ y: -2 }}>
           <div className="summary-icon blue"><School size={20} /></div>
           <div className="summary-content">
             <span className="summary-value">{schoolCount}</span>
-            <span className="summary-label">At-Risk Schools</span>
+            <span className="summary-label">Schools in High-Use Counties</span>
           </div>
+          <button className="info-toggle" title="Click for details"><Info size={10} /></button>
+          <div className="card-tooltip">Schools located in counties with &gt;30M lbs pesticide use annually</div>
         </motion.div>
 
-        <motion.div className="summary-card" whileHover={{ y: -2 }}>
+        <motion.div className="summary-card has-tooltip" whileHover={{ y: -2 }}>
           <div className="summary-icon pink"><Building2 size={20} /></div>
           <div className="summary-content">
             <span className="summary-value">{healthcareCount}</span>
-            <span className="summary-label">At-Risk Healthcare</span>
+            <span className="summary-label">Healthcare in High-Use Counties</span>
           </div>
+          <button className="info-toggle" title="Click for details"><Info size={10} /></button>
+          <div className="card-tooltip">Healthcare facilities in counties with &gt;30M lbs pesticide use annually</div>
         </motion.div>
 
-        <motion.div className="summary-card" whileHover={{ y: -2 }}>
+        <motion.div className="summary-card has-tooltip" whileHover={{ y: -2 }}>
           <div className="summary-icon red"><AlertCircle size={20} /></div>
           <div className="summary-content">
             <span className="summary-value">{highestCounty}</span>
-            <span className="summary-label">Highest Risk County</span>
+            <span className="summary-label">Highest Volume County</span>
           </div>
+          <button className="info-toggle" title="Click for details"><Info size={10} /></button>
+          <div className="card-tooltip">County with most pounds of pesticide applied in {selectedYear}. Risk = total lbs applied (not toxicity-weighted).</div>
         </motion.div>
 
-        <motion.div className="summary-card live" whileHover={{ y: -2 }}>
-          <div className="summary-icon green"><Radio size={20} className={connected ? 'pulse' : ''} /></div>
+        <motion.div className="summary-card simulated has-tooltip" whileHover={{ y: -2 }}>
+          <div className="summary-icon orange"><Radio size={20} className={connected ? 'pulse' : ''} /></div>
           <div className="summary-content">
             <span className="summary-value">{liveSprayEvents.length}</span>
-            <span className="summary-label">Live Events Today</span>
+            <span className="summary-label">Simulated Events <span className="demo-badge">DEMO</span></span>
           </div>
+          <button className="info-toggle" title="Click for details"><Info size={10} /></button>
+          <div className="card-tooltip">Simulated real-time events for demonstration. Historical data available through 2023.</div>
         </motion.div>
       </div>
 
