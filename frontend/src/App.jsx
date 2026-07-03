@@ -1232,11 +1232,7 @@ function App() {
       <header className="header">
         <div className="logo">
           <div className="logo-icon"><Zap size={20} /></div>
-          <div className="logo-content">
-            <span className="logo-text">GeoSync</span>
-            <span className="logo-badge">BETA</span>
-            <span className="logo-tagline">Pesticide exposure mapping for environmental health research</span>
-          </div>
+          <span className="logo-text">GeoSync</span>
         </div>
 
         <nav className="nav">
