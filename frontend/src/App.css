@@ -2544,3 +2544,193 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* =================================
+   FARMER BENEFITS & VERIFIED BADGE
+   ================================= */
+
+/* Verified Farm Badge */
+.verified-badge-section {
+  margin-bottom: 1.5rem;
+}
+
+.badge-card {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+}
+
+.badge-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--green), #059669);
+  border-radius: 12px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.badge-content {
+  flex: 1;
+}
+
+.badge-content h3 {
+  font-size: 1.1rem;
+  color: var(--green);
+  margin-bottom: 0.35rem;
+}
+
+.badge-content p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.badge-progress {
+  margin-top: 0.5rem;
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), #34d399);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Benefits Section */
+.benefits-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.benefits-section h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.benefits-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+
+.benefit-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.benefit-icon.compliance {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--blue);
+}
+
+.benefit-icon.incentive {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--orange);
+}
+
+.benefit-icon.badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--green);
+}
+
+.benefit-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.benefit-text strong {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.benefit-text span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Spray Report Section */
+.spray-report-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.spray-report-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.spray-report-section h3 svg {
+  color: var(--green);
+}
+
+.form-description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Success Banner */
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}

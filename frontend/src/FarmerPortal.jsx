@@ -12,7 +12,8 @@ import {
   User, Lock, Mail, Phone, MapPin, Wheat, Building,
   Droplets, Calendar, Clock, Wind, Thermometer,
   AlertTriangle, CheckCircle, ChevronRight, LogOut,
-  Plus, History, BarChart3, Send, Loader, Home
+  Plus, History, BarChart3, Send, Loader, Home,
+  Zap, FileText, Download, Award
 } from 'lucide-react'
 
 const API_URL = 'http://localhost:8001/api'
@@ -415,6 +416,51 @@ export default function FarmerPortal({ isOpen, onClose, onLogout }) {
         </button>
       </div>
 
+      {/* Verified Farm Badge */}
+      <div className="verified-badge-section">
+        <div className="badge-card">
+          <div className="badge-icon"><CheckCircle size={28} /></div>
+          <div className="badge-content">
+            <h3>GeoSync Verified Farm</h3>
+            <p>Consistent reporting builds your transparency record. Verified farms can share this badge with buyers, schools, and partners.</p>
+            <div className="badge-progress">
+              <span className="progress-label">{stats?.total_reports || 0} / 10 reports to earn badge</span>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${Math.min((stats?.total_reports || 0) / 10 * 100, 100)}%` }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Benefits Banner */}
+      <div className="benefits-section">
+        <h3>Why Report Through GeoSync?</h3>
+        <div className="benefits-grid">
+          <div className="benefit-item">
+            <div className="benefit-icon compliance"><FileText size={20} /></div>
+            <div className="benefit-text">
+              <strong>Compliance-Ready Reports</strong>
+              <span>Export formatted records that help satisfy CalAgPermits requirements</span>
+            </div>
+          </div>
+          <div className="benefit-item">
+            <div className="benefit-icon incentive"><Zap size={20} /></div>
+            <div className="benefit-text">
+              <strong>Sustainability Incentives</strong>
+              <span>Could support eligibility for DPR sustainable pest-management programs</span>
+            </div>
+          </div>
+          <div className="benefit-item">
+            <div className="benefit-icon badge"><CheckCircle size={20} /></div>
+            <div className="benefit-text">
+              <strong>Verified Farm Badge</strong>
+              <span>Show buyers and partners you're transparent and responsible</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Stats */}
       {stats && (
         <div className="farmer-stats">
@@ -454,7 +500,11 @@ export default function FarmerPortal({ isOpen, onClose, onLogout }) {
       {/* New Spray Report Form */}
       <div className="spray-report-section">
         <h3><Plus size={18} /> Report New Spray Application</h3>
-        <p>Submit this form BEFORE you spray. This data will immediately update the public dashboard.</p>
+        <p className="form-description">
+          Submit your spray data here. This record will be saved to your account for compliance documentation
+          and can be exported in formats compatible with CalAgPermits. Your data also helps update the
+          public dashboard for community exposure monitoring.
+        </p>
 
         <form onSubmit={handleSubmitSpray} className="spray-form">
           <div className="form-section">
