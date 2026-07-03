@@ -52,7 +52,7 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 2rem;
   padding: 0.75rem 1.5rem;
   background: rgba(9, 9, 11, 0.95);
   backdrop-filter: blur(20px);
@@ -60,10 +60,18 @@ body {
   z-index: 100;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -105,7 +113,6 @@ body {
 .nav-btn:hover { color: var(--text-primary); }
 .nav-btn.active { background: var(--bg-card); color: var(--text-primary); }
 
-.header-actions { display: flex; gap: 0.75rem; }
 
 .btn-secondary, .btn-primary {
   display: flex;
