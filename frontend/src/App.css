@@ -1,21 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Schibsted+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg-primary: #09090b;
-  --bg-secondary: #18181b;
-  --bg-card: rgba(24, 24, 27, 0.9);
-  --border: rgba(255, 255, 255, 0.08);
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --green: #10b981;
-  --blue: #3b82f6;
-  --orange: #f59e0b;
-  --red: #ef4444;
-  --pink: #ec4899;
-  --purple: #8b5cf6;
+  /* surfaces — deep field green, matching the landing page */
+  --bg-primary: #0b1d11;
+  --bg-secondary: #12301c;
+  --bg-card: rgba(18, 44, 26, 0.92);
+  --bg-panel: rgba(10, 27, 16, 0.94);
+  --border: rgba(226, 245, 200, 0.11);
+
+  --text-primary: #fbf5e6;
+  --text-secondary: #bccbb4;
+  --text-muted: #86987f;
+
+  /* interaction + decoration */
+  --hover: rgba(226, 245, 200, 0.07);
+  --grid-line: rgba(226, 245, 200, 0.02);
+  --overlay: rgba(3, 10, 5, 0.7);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 25px 60px rgba(0, 0, 0, 0.55);
+
+  /* one lime accent; the rest are status colours, lifted for dark surfaces */
+  --green: #c6f04b;
+  --blue: #6fb1ff;
+  --orange: #f4c93a;
+  --red: #ff7a6b;
+  --pink: #f78fc0;
+  --purple: #b9a2ff;
+
+  color-scheme: dark;
 }
 
 body {
@@ -42,8 +57,8 @@ body {
 .bg-grid {
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 50px 50px;
   pointer-events: none;
 }
@@ -54,7 +69,7 @@ body {
   align-items: center;
   gap: 2rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(9, 9, 11, 0.95);
+  background: var(--bg-panel);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   z-index: 100;
@@ -77,7 +92,7 @@ body {
 .logo-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--green), #059669);
+  background: linear-gradient(135deg, #10b981, #059669);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -146,7 +161,7 @@ body {
   display: flex;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background: rgba(9, 9, 11, 0.8);
+  background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   z-index: 50;
 }
@@ -202,7 +217,7 @@ body {
   gap: 1rem;
   overflow-y: scroll;
   overflow-x: hidden;
-  background: rgba(9, 9, 11, 0.9);
+  background: var(--bg-panel);
   border-right: 1px solid var(--border);
   z-index: 10;
   flex-shrink: 0;
@@ -312,7 +327,7 @@ body {
   transition: all 0.2s;
 }
 
-.risk-item:hover { background: rgba(255, 255, 255, 0.05); }
+.risk-item:hover { background: var(--hover); }
 
 .risk-marker {
   width: 32px;
@@ -391,7 +406,9 @@ body {
 .legend-dot.red-ring { background: transparent; border: 2px solid var(--red); }
 
 .legend-scale { border-top: 1px solid var(--border); padding-top: 0.75rem; }
-.legend-bar { height: 6px; background: linear-gradient(90deg, var(--orange), var(--red)); border-radius: 3px; margin-bottom: 0.4rem; }
+.legend-bar { height: 8px; background: linear-gradient(90deg, #1c1917 0%, #7c2d12 6%, #c2410c 14%, #f97316 34%, #fbbf24 66%, #fef08a 100%); border-radius: 3px; margin-bottom: 0.4rem; }
+.legend-swatch { width: 14px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, #c2410c, #fbbf24); }
+.legend-swatch.risk { background: transparent; border: 2px solid #f43f5e; }
 .legend-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); }
 
 /* Map controls */
@@ -416,7 +433,7 @@ body {
 /* Right Details Panel */
 .detail-panel {
   width: 320px;
-  background: rgba(9, 9, 11, 0.95);
+  background: var(--bg-panel);
   border-left: 1px solid var(--border);
   padding: 1.5rem;
   display: flex;
@@ -520,7 +537,7 @@ body {
   border: 1px solid var(--border) !important;
   border-radius: 12px !important;
   padding: 0 !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .maplibregl-popup-tip { display: none !important; }
@@ -608,7 +625,7 @@ body {
   transition: all 0.2s;
 }
 
-.live-event:hover { background: rgba(255, 255, 255, 0.05); }
+.live-event:hover { background: var(--hover); }
 .live-event.critical { border-left-color: var(--red); }
 .live-event.high { border-left-color: var(--orange); }
 .live-event.medium { border-left-color: var(--blue); }
@@ -656,7 +673,7 @@ body {
   background: var(--green);
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .spray-marker.critical .spray-marker-inner { background: var(--red); }
@@ -816,7 +833,7 @@ body {
   gap: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(9, 9, 11, 0.9);
+  background: var(--bg-panel);
   border-right: 1px solid var(--border);
   max-height: 100%;
   scrollbar-width: thin;
@@ -954,7 +971,7 @@ body {
   gap: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(9, 9, 11, 0.9);
+  background: var(--bg-panel);
   border-right: 1px solid var(--border);
   max-height: 100%;
   scrollbar-width: thin;
@@ -1130,7 +1147,7 @@ body {
   gap: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(9, 9, 11, 0.9);
+  background: var(--bg-panel);
   border-right: 1px solid var(--border);
   max-height: 100%;
   scrollbar-width: thin;
@@ -1460,7 +1477,7 @@ body {
 .farmer-portal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--overlay);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -1479,7 +1496,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
 }
 
 .farmer-header {
@@ -1752,7 +1769,7 @@ body {
 .ai-assistant-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -1770,7 +1787,7 @@ body {
   border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4),
+  box-shadow: var(--shadow-lg),
               0 0 60px rgba(139, 92, 246, 0.15);
   overflow: hidden;
 }
@@ -2370,7 +2387,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   pointer-events: none;
 }
 
@@ -2744,3 +2761,52 @@ body {
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
+
+
+/* ---------- density pass ---------- */
+
+.header { gap: 1.5rem; padding: 0.6rem 1.25rem; }
+.nav-btn { white-space: nowrap; }
+.header-actions { gap: 0.5rem; }
+
+/* one clear primary action; the rest step back */
+.btn-ai, .btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+.btn-ai:hover, .btn-secondary:hover { background: var(--hover); color: var(--text-primary); transform: none; box-shadow: none; }
+
+.summary-bar { gap: 0.75rem; padding: 0.75rem 1.25rem; }
+.summary-card { gap: 0.8rem; padding: 0.7rem 1rem; min-width: 0; }
+.summary-icon { width: 36px; height: 36px; flex: none; }
+.summary-content { min-width: 0; }
+.summary-value { font-size: 1.3rem; line-height: 1.2; white-space: nowrap; }
+.summary-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* newest alerts only, compact, so the map stays readable */
+.notifications { max-width: 300px; gap: 0.4rem; }
+.notification { padding: 0.55rem 0.75rem; }
+.notification-msg { font-size: 0.8rem; line-height: 1.35; }
+
+.map-legend { padding: 0.8rem 0.9rem; min-width: 160px; }
+.legend-items { gap: 0.4rem; }
+
+.maplibregl-ctrl-group { background: var(--bg-card); border: 1px solid var(--border); }
+.maplibregl-ctrl-group button + button { border-top-color: var(--border); }
+.maplibregl-ctrl button .maplibregl-ctrl-icon { filter: invert(1); }
+.maplibregl-popup-content { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: var(--bg-secondary); }
+.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: var(--bg-secondary); }
+
+/* ---------- brand pass: lime accent needs dark text on top of it ---------- */
+
+body { font-family: 'Schibsted Grotesk', 'Inter', -apple-system, sans-serif; }
+.logo-text, .summary-value { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'SOFT' 100, 'WONK' 1; font-weight: 500; }
+.logo { cursor: pointer; }
+.logo-icon { background: var(--green); color: #10200f; }
+.btn-farmer { background: var(--green); color: #10200f; font-weight: 600; box-shadow: none; }
+.btn-farmer:hover { background: #d4f76a; box-shadow: none; }
+.nav-btn.active { background: rgba(198, 240, 75, 0.14); color: var(--green); }
+.layer-btn.active { background: rgba(198, 240, 75, 0.1); }

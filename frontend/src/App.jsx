@@ -16,6 +16,7 @@ import {
 import './App.css'
 import FarmerPortal from './FarmerPortal'
 import AIAssistant from './AIAssistant'
+import Landing from './Landing'
 
 const API_URL = 'http://localhost:8001/api'
 const WS_URL = 'ws://localhost:8001/api/ws/sprays'
@@ -25,6 +26,28 @@ function App() {
   const map = useRef(null)
   const wsRef = useRef(null)
   const sprayMarkersRef = useRef({})
+  const countyShapesRef = useRef(null)
+
+  // The API returns one point per county. Join those totals onto the county
+  // outlines so the map can shade each county instead of drawing a dot.
+  const setCountyData = async (pointCollection) => {
+    try {
+      if (!countyShapesRef.current) {
+        countyShapesRef.current = fetch('/ca-counties.geojson').then(r => r.json())
+      }
+      const shapes = await countyShapesRef.current
+      const byCounty = Object.fromEntries(pointCollection.features.map(f => [f.properties.county, f.properties]))
+      map.current?.getSource('counties')?.setData({
+        type: 'FeatureCollection',
+        features: shapes.features.map(shape => ({
+          ...shape,
+          properties: { total_lbs: 0, spray_count: 0, ...byCounty[shape.properties.county], county: shape.properties.county }
+        }))
+      })
+    } catch (err) {
+      console.error('Failed to load county outlines:', err)
+    }
+  }
 
   const [activeTab, setActiveTab] = useState('dashboard')
   const [years, setYears] = useState([])
@@ -57,6 +80,7 @@ function App() {
   // Farmer Portal & AI Assistant
   const [showFarmerPortal, setShowFarmerPortal] = useState(false)
   const [showAIAssistant, setShowAIAssistant] = useState(false)
+  const [showLanding, setShowLanding] = useState(true)
 
   // Connect to WebSocket for real-time updates
   const connectWebSocket = useCallback(() => {
@@ -191,17 +215,28 @@ function App() {
       style: {
         version: 8,
         sources: {
-          carto: {
+          basemap: {
             type: 'raster',
-            tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
-            tileSize: 256
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+            tileSize: 256,
+            maxzoom: 16,
+            attribution: 'Tiles © Esri'
+          },
+          labels: {
+            type: 'raster',
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+            tileSize: 256,
+            maxzoom: 16
           }
         },
-        layers: [{ id: 'carto', type: 'raster', source: 'carto' }],
+        layers: [
+          { id: 'basemap', type: 'raster', source: 'basemap' },
+          { id: 'labels', type: 'raster', source: 'labels' }
+        ],
         glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'
       },
-      center: [-119.4179, 36.7783],
-      zoom: 6
+      bounds: [[-124.6, 32.4], [-114.0, 42.1]],
+      fitBoundsOptions: { padding: 40 }
     })
 
     map.current.addControl(new maplibregl.NavigationControl(), 'bottom-right')
@@ -210,6 +245,7 @@ function App() {
       // County pesticide data
       map.current.addSource('counties', {
         type: 'geojson',
+        promoteId: 'county',
         data: { type: 'FeatureCollection', features: [] }
       })
 
@@ -225,62 +261,44 @@ function App() {
         data: { type: 'FeatureCollection', features: [] }
       })
 
-      // Heatmap for pesticide intensity
+      // Counties shaded by pounds of pesticide applied. Drawn under the place labels.
       map.current.addLayer({
-        id: 'pesticide-heat',
-        type: 'heatmap',
+        id: 'county-fill',
+        type: 'fill',
         source: 'counties',
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'total_lbs'], 0, 0, 100000000, 1],
-          'heatmap-intensity': 0.6,
-          'heatmap-color': [
-            'interpolate', ['linear'], ['heatmap-density'],
-            0, 'rgba(0,0,0,0)',
-            0.2, 'rgba(254, 178, 76, 0.4)',
-            0.4, 'rgba(253, 141, 60, 0.5)',
-            0.6, 'rgba(252, 78, 42, 0.6)',
-            0.8, 'rgba(227, 26, 28, 0.7)',
-            1, 'rgba(189, 0, 38, 0.8)'
-          ],
-          'heatmap-radius': 50,
-          'heatmap-opacity': 0.7
-        }
-      })
-
-      // Pesticide county circles
-      map.current.addLayer({
-        id: 'county-circles',
-        type: 'circle',
-        source: 'counties',
-        paint: {
-          'circle-radius': ['interpolate', ['linear'], ['get', 'total_lbs'], 0, 12, 50000000, 35],
-          'circle-color': [
+          'fill-color': [
             'interpolate', ['linear'], ['get', 'total_lbs'],
-            0, '#f59e0b',
-            20000000, '#f97316',
-            40000000, '#ef4444',
-            60000000, '#dc2626'
+            0, '#1c1917',
+            250000, '#451a03',
+            1000000, '#7c2d12',
+            5000000, '#c2410c',
+            15000000, '#f97316',
+            30000000, '#fbbf24',
+            45000000, '#fef08a'
           ],
-          'circle-opacity': 0.85,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': 'rgba(255,255,255,0.4)'
+          'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.92, 0.72]
         }
-      })
+      }, 'labels')
 
-      // At-risk pulsing rings
       map.current.addLayer({
-        id: 'risk-rings',
-        type: 'circle',
+        id: 'county-line',
+        type: 'line',
+        source: 'counties',
+        paint: {
+          'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#ffffff', 'rgba(255,255,255,0.22)'],
+          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0.6]
+        }
+      }, 'labels')
+
+      // High-use counties (over 30M lbs) get a red outline
+      map.current.addLayer({
+        id: 'risk-outline',
+        type: 'line',
         source: 'counties',
         filter: ['>', ['get', 'total_lbs'], 30000000],
-        paint: {
-          'circle-radius': ['interpolate', ['linear'], ['get', 'total_lbs'], 30000000, 40, 60000000, 55],
-          'circle-color': 'transparent',
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ef4444',
-          'circle-stroke-opacity': 0.6
-        }
-      })
+        paint: { 'line-color': '#f43f5e', 'line-width': 2.5 }
+      }, 'labels')
 
       // Spray site markers (agricultural fields)
       map.current.addLayer({
@@ -288,11 +306,10 @@ function App() {
         type: 'circle',
         source: 'spray-sites',
         paint: {
-          'circle-radius': 6,
-          'circle-color': '#22c55e',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff',
-          'circle-opacity': 0.8
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 2, 8, 4, 12, 7],
+          'circle-color': '#4ade80',
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#052e16'
         }
       })
 
@@ -303,10 +320,10 @@ function App() {
         source: 'locations',
         filter: ['==', ['get', 'category'], 'school'],
         paint: {
-          'circle-radius': 8,
-          'circle-color': '#3b82f6',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff'
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 3, 8, 5, 12, 9],
+          'circle-color': '#60a5fa',
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#0b1220'
         }
       })
 
@@ -317,10 +334,10 @@ function App() {
         source: 'locations',
         filter: ['==', ['get', 'category'], 'healthcare'],
         paint: {
-          'circle-radius': 8,
-          'circle-color': '#ec4899',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff'
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 3, 8, 5, 12, 9],
+          'circle-color': '#f472b6',
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#0b1220'
         }
       })
 
@@ -339,10 +356,27 @@ function App() {
   const setupInteractions = () => {
     const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 15 })
 
-    // County hover tooltip
-    map.current.on('mouseenter', 'county-circles', (e) => {
-      map.current.getCanvas().style.cursor = 'pointer'
+    // County hover: highlight the county and show its totals
+    let hoveredCounty = null
+    const clearCountyHover = () => {
+      if (hoveredCounty !== null) {
+        map.current.setFeatureState({ source: 'counties', id: hoveredCounty }, { hover: false })
+        hoveredCounty = null
+      }
+    }
+
+    map.current.on('mousemove', 'county-fill', (e) => {
+      // A school, hospital or spray site under the pointer takes priority
+      const points = map.current.queryRenderedFeatures(e.point, { layers: ['schools-layer', 'hospitals-layer', 'spray-sites-layer'] })
+      if (points.length) { clearCountyHover(); return }
+
       const p = e.features[0].properties
+      if (hoveredCounty !== p.county) {
+        clearCountyHover()
+        hoveredCounty = p.county
+        map.current.setFeatureState({ source: 'counties', id: hoveredCounty }, { hover: true })
+      }
+      map.current.getCanvas().style.cursor = 'pointer'
       const lbs = Number(p.total_lbs)
       const risk = lbs > 30000000 ? 'HIGH' : lbs > 15000000 ? 'MEDIUM' : 'LOW'
       const riskClass = risk.toLowerCase()
@@ -351,7 +385,7 @@ function App() {
         <div class="tooltip">
           <div class="tooltip-header">
             <span class="tooltip-icon pesticide">●</span>
-            <span class="tooltip-title">Pesticide Zone</span>
+            <span class="tooltip-title">Pesticide use</span>
           </div>
           <div class="tooltip-county">${p.county} County</div>
           <div class="tooltip-stats">
@@ -363,8 +397,9 @@ function App() {
       `).addTo(map.current)
     })
 
-    map.current.on('mouseleave', 'county-circles', () => {
+    map.current.on('mouseleave', 'county-fill', () => {
       map.current.getCanvas().style.cursor = ''
+      clearCountyHover()
       popup.remove()
     })
 
@@ -475,7 +510,7 @@ function App() {
         map.current.getSource('locations').setData(locRes.data)
       }
       if (map.current?.getSource('counties')) {
-        map.current.getSource('counties').setData(countiesRes.data)
+        setCountyData(countiesRes.data)
         const sorted = countiesRes.data.features
           .sort((a, b) => b.properties.total_lbs - a.properties.total_lbs)
           .slice(0, 5)
@@ -567,7 +602,7 @@ function App() {
 
     axios.get(`${API_URL}/sprays/heatmap?year=${selectedYear}`)
       .then(res => {
-        map.current?.getSource('counties')?.setData(res.data)
+        setCountyData(res.data)
         const sorted = res.data.features
           .sort((a, b) => b.properties.total_lbs - a.properties.total_lbs)
           .slice(0, 5)
@@ -741,7 +776,7 @@ function App() {
         {/* Notifications */}
         <div className="notifications">
           <AnimatePresence>
-            {notifications.map((n) => (
+            {notifications.slice(0, 2).map((n) => (
               <motion.div
                 key={n.id}
                 className={`notification ${n.level}`}
@@ -766,21 +801,21 @@ function App() {
         <div className="map-legend">
           <div className="legend-title">Map Legend</div>
           <div className="legend-items">
-            <div className="legend-item"><span className="legend-dot orange" /> Pesticide Usage</div>
-            <div className="legend-item"><span className="legend-dot red-ring" /> High-Risk Zone</div>
+            <div className="legend-item"><span className="legend-swatch" /> Pesticide use by county</div>
+            <div className="legend-item"><span className="legend-swatch risk" /> Over 30M lbs</div>
             <div className="legend-item"><span className="legend-dot green" /> Spray Sites</div>
             <div className="legend-item"><span className="legend-dot blue" /> Schools</div>
             <div className="legend-item"><span className="legend-dot pink" /> Healthcare</div>
           </div>
           <div className="legend-scale">
             <div className="legend-bar" />
-            <div className="legend-labels"><span>Low</span><span>High</span></div>
+            <div className="legend-labels"><span>0</span><span>5M</span><span>15M</span><span>45M lbs</span></div>
           </div>
         </div>
 
         {/* Map controls */}
         <div className="map-controls">
-          <button className="map-btn" onClick={() => map.current?.flyTo({ center: [-119.4179, 36.7783], zoom: 6 })}>
+          <button className="map-btn" onClick={() => map.current?.fitBounds([[-124.6, 32.4], [-114.0, 42.1]], { padding: 40 })}>
             <Navigation size={18} />
           </button>
         </div>
@@ -1225,12 +1260,13 @@ function App() {
 
   return (
     <div className="app">
+      {showLanding && <Landing onEnter={() => setShowLanding(false)} />}
       <div className="bg-gradient" />
       <div className="bg-grid" />
 
       {/* Header */}
       <header className="header">
-        <div className="logo">
+        <div className="logo" onClick={() => setShowLanding(true)} title="Back to the overview">
           <div className="logo-icon"><Zap size={20} /></div>
           <span className="logo-text">GeoSync</span>
         </div>

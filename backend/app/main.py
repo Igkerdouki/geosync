@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
+import json
+import os
+import tempfile
 
 from app.api import sprays, drift, research, toxicity, locations, realtime, weather, history, farmers
 
@@ -25,6 +28,38 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+# The historical PUR tables are tens of millions of rows and never change between runs,
+# so the heavy read-only aggregates are answered once and then served from a cache.
+CACHE_FILE = os.path.join(tempfile.gettempdir(), "geosync_api_cache.json")
+CACHED_PREFIXES = ("/api/sprays/", "/api/research/", "/api/history/")
+try:
+    with open(CACHE_FILE) as f:
+        _cache = json.load(f)
+except (OSError, ValueError):
+    _cache = {}
+
+
+@app.middleware("http")
+async def cache_historical_reads(request: Request, call_next):
+    key = request.url.path + "?" + request.url.query
+    if request.method != "GET" or not request.url.path.startswith(CACHED_PREFIXES):
+        return await call_next(request)
+    if key in _cache:
+        return Response(content=_cache[key], media_type="application/json")
+
+    response = await call_next(request)
+    if response.status_code != 200:
+        return response
+    body = b"".join([chunk async for chunk in response.body_iterator])
+    _cache[key] = body.decode()
+    try:
+        with open(CACHE_FILE, "w") as f:
+            json.dump(_cache, f)
+    except OSError:
+        pass
+    return Response(content=body, media_type="application/json")
+
 
 app.add_middleware(
     CORSMiddleware,
